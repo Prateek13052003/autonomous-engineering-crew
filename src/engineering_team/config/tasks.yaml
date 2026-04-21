@@ -1,0 +1,288 @@
+# ============================================================
+#  tasks.yaml  —  Full Software Engineering Crew Task Pipeline
+#  Execution order: lead → specialists → lead (final review)
+# ============================================================
+
+# ── 1. ENGINEERING LEAD ─────────────────────────────────────
+technical_planning_task:
+  description: >
+    Analyse the {topic} requirements thoroughly for the current year {current_year}.
+    Decompose the project into clearly scoped engineering work-streams — one per
+    specialist agent (backend, frontend, QA, DevOps, security, data). For each
+    work-stream define: the core deliverables, acceptance criteria, known
+    technical risks, and any cross-team dependencies. Identify any architectural
+    decision records (ADRs) that need to be made before implementation begins.
+    Highlight which decisions are blockers and which can be deferred.
+  expected_output: >
+    A structured technical plan containing:
+    - An executive summary of the {topic} system and its goals
+    - A work-stream breakdown (one section per specialist agent) with
+      deliverables, acceptance criteria, and risk flags
+    - A list of architectural decisions required (ADRs), each with options
+      and a recommended choice
+    - A dependency map showing which work-streams must complete before others
+      can begin
+    Formatted as markdown without '```'
+  agent: engineering_lead
+
+# ── 2. BACKEND ENGINEER ─────────────────────────────────────
+backend_development_task:
+  description: >
+    Using the technical plan produced by the engineering lead, design and
+    document the complete server-side architecture for {topic}.
+    Cover the following in full detail:
+    - API design (REST or GraphQL endpoints, request/response contracts,
+      versioning strategy, error codes)
+    - Data modelling (entity relationships, schema design, indexing strategy,
+      migration approach)
+    - Service boundaries and communication patterns (sync vs async,
+      message queue design if applicable)
+    - Scalability and fault-tolerance patterns (caching layers, circuit breakers,
+      retry strategies, rate limiting)
+    - Observability plan (structured logs, metrics, distributed traces,
+      health-check endpoints)
+    Ensure all designs conform to 12-factor app principles and are ready
+    for the current year {current_year} cloud-native deployment standards.
+  expected_output: >
+    A backend architecture document containing:
+    - Full API specification (endpoints, methods, payloads, status codes)
+    - Database schema with entity diagrams described in text
+    - Service interaction diagram described in structured text
+    - Scalability and resilience design decisions with justifications
+    - Observability instrumentation plan (what is logged, metered, and traced)
+    - List of third-party libraries / frameworks chosen with rationale
+    Formatted as markdown without '```'
+  agent: backend_engineer
+  context:
+    - technical_planning_task
+
+# ── 3. FRONTEND ENGINEER ────────────────────────────────────
+frontend_development_task:
+  description: >
+    Using the technical plan and the backend API specification for {topic},
+    design and document the complete frontend architecture and component strategy.
+    Cover the following in full detail:
+    - Application architecture (routing, state management strategy, data-fetching
+      layer — REST/GraphQL client, caching, optimistic updates)
+    - Component hierarchy and design system conventions (atomic design or
+      similar, Storybook usage, shared tokens)
+    - Responsive layout strategy and breakpoint system
+    - Accessibility plan (WCAG 2.1 AA compliance checklist, keyboard navigation,
+      ARIA roles, colour contrast requirements)
+    - Performance budget (Core Web Vitals targets: LCP, CLS, FID/INP) and
+      optimisation techniques (code splitting, lazy loading, image optimisation)
+    - Internationalisation (i18n) and localisation (l10n) approach if applicable
+    Align all API integration points with the backend contract defined in
+    backend_development_task.
+  expected_output: >
+    A frontend architecture document containing:
+    - Chosen framework and toolchain with rationale (React/Vue/Angular +
+      build tool + CSS strategy)
+    - Component tree overview with responsibilities of each major component
+    - State management plan (what lives globally vs locally vs in server cache)
+    - API integration layer design (how the frontend consumes backend endpoints)
+    - Accessibility compliance checklist mapped to {topic} features
+    - Performance optimisation plan with measurable targets
+    - Folder/module structure recommendation
+    Formatted as markdown without '```'
+  agent: frontend_engineer
+
+# ── 4. QA ENGINEER ──────────────────────────────────────────
+quality_assurance_task:
+  description: >
+    Review the backend architecture, frontend architecture, and technical plan
+    for {topic} to produce a comprehensive quality assurance strategy.
+    Cover the following in full detail:
+    - Test pyramid breakdown: unit tests (coverage targets and ownership),
+      integration tests (service boundary contracts), end-to-end tests
+      (critical user journeys)
+    - Test automation framework selection for each layer (e.g. pytest / Jest /
+      Playwright) with justification
+    - Test data management strategy (seed scripts, factories, isolation between
+      test runs)
+    - Edge-case and negative-path test scenarios for every major feature of
+      {topic}
+    - Performance and load testing plan (tools, scenarios, pass/fail thresholds)
+    - Regression testing strategy and flake-rate management policy
+    - Definition of Done: checklist that every feature must pass before merging
+    Reference the acceptance criteria from technical_planning_task and map
+    each criterion to at least one concrete test case.
+  expected_output: >
+    A QA strategy document containing:
+    - Test pyramid breakdown with ownership and coverage targets per layer
+    - Automation framework decisions with justification
+    - Full test case inventory (feature → test cases mapping table)
+    - Edge-case and negative-path scenarios listed per feature
+    - Performance test plan with scenario descriptions and thresholds
+    - Test data management approach
+    - Definition of Done checklist
+    - List of identified testability risks and mitigations
+    Formatted as markdown without '```'
+  agent: qa_engineer
+  context:
+    - technical_planning_task
+    - backend_development_task
+    - frontend_development_task
+
+# ── 5. DEVOPS ENGINEER ──────────────────────────────────────
+devops_infrastructure_task:
+  description: >
+    Using the full technical context for {topic}, design and document the
+    complete CI/CD pipeline, cloud infrastructure, and operational runbook.
+    Cover the following in full detail:
+    - CI/CD pipeline design (stages: lint → test → build → scan → deploy,
+      branch strategy, PR environments, promotion gates)
+    - Infrastructure-as-Code architecture (Terraform / Pulumi module layout,
+      environment matrix: dev / staging / production, state management)
+    - Container and orchestration strategy (Docker image layering, Kubernetes
+      manifests or serverless patterns, resource requests/limits)
+    - Progressive delivery strategy (blue-green or canary deployments, feature
+      flags, automated rollback triggers)
+    - Observability stack design (metrics, logs, traces, dashboards, alerting
+      rules, on-call runbooks)
+    - Cost management approach (resource tagging taxonomy, budget alerts,
+      right-sizing recommendations)
+    - Disaster recovery plan (RTO/RPO targets, backup strategy, failover procedure)
+    Ensure all infrastructure decisions comply with {current_year} best practices
+    and align with the security requirements to be defined in the security task.
+  expected_output: >
+    A DevOps & infrastructure document containing:
+    - CI/CD pipeline stage-by-stage description with tooling choices
+    - Infrastructure architecture overview (environments, networking, services)
+    - IaC module structure and naming conventions
+    - Container/orchestration configuration recommendations
+    - Progressive delivery plan with rollback criteria
+    - Observability stack design (what is monitored, alerted, and on-call routed)
+    - Disaster recovery plan with RTO/RPO targets
+    - Cost tagging strategy and monthly budget estimate
+    Formatted as markdown without '```'
+  agent: devops_engineer
+  context:
+    - technical_planning_task
+    - backend_development_task
+
+# ── 6. SECURITY ENGINEER ────────────────────────────────────
+security_review_task:
+  description: >
+    Conduct a full application security review of the {topic} design across
+    all layers — backend APIs, frontend, infrastructure, and data pipelines.
+    Cover the following in full detail:
+    - Threat model using STRIDE: for each component identify Spoofing,
+      Tampering, Repudiation, Information Disclosure, Denial of Service,
+      and Elevation of Privilege threats with mitigations
+    - OWASP Top 10 assessment: map each risk to {topic} components and
+      specify controls (input validation, parameterised queries, CSP headers,
+      CORS policy, etc.)
+    - Authentication and authorisation design (OAuth 2.0 / OIDC flows, token
+      lifecycle, RBAC / ABAC model, session management)
+    - Secrets management strategy (no secrets in code or environment variables
+      — Vault / cloud secrets manager integration plan)
+    - Supply chain security (dependency scanning policy, SBOM generation,
+      container image signing)
+    - Security pipeline integration points (SAST, DAST, SCA stages in the
+      CI/CD pipeline defined in devops_infrastructure_task)
+    - Compliance requirements relevant to {topic} in {current_year}
+      (GDPR, SOC 2, ISO 27001, HIPAA — whichever apply)
+    - Incident response plan (detection, containment, eradication, recovery,
+      post-mortem process)
+  expected_output: >
+    A security review document containing:
+    - STRIDE threat model table (component × threat × mitigation)
+    - OWASP Top 10 risk register with controls mapped to {topic}
+    - Authentication and authorisation design with flow descriptions
+    - Secrets management architecture
+    - Supply chain security controls and tooling
+    - Security CI/CD integration points (scan stages, fail criteria)
+    - Compliance gap analysis and remediation plan
+    - Incident response playbook (step-by-step)
+    - Prioritised vulnerability backlog (Critical / High / Medium / Low)
+    Formatted as markdown without '```'
+  agent: security_engineer
+  context:
+    - technical_planning_task
+    - backend_development_task
+    - devops_infrastructure_task
+
+# ── 7. DATA ENGINEER ────────────────────────────────────────
+data_engineering_task:
+  description: >
+    Using the backend architecture and infrastructure design for {topic},
+    design and document the complete data engineering layer.
+    Cover the following in full detail:
+    - Event and schema design (event taxonomy, Avro/Protobuf/JSON Schema
+      contracts, schema registry strategy, versioning and compatibility rules)
+    - Ingestion pipeline architecture (batch vs streaming sources, CDC
+      patterns if applicable, idempotency guarantees)
+    - Storage and modelling layer (Bronze → Silver → Gold / medallion
+      architecture, dimensional or data vault modelling, partitioning strategy)
+    - Transformation and orchestration (dbt models and test coverage,
+      Airflow / Prefect DAG design, dependency graph)
+    - Data quality framework (Great Expectations / dbt tests, anomaly
+      detection, SLA alerting, data contract enforcement)
+    - Data lineage and cataloguing approach (column-level lineage,
+      business glossary, metadata management tool)
+    - Data access and governance (role-based access to datasets,
+      PII classification and masking strategy, data retention policy)
+    Align the data layer with the security controls defined in
+    security_review_task and the observability stack in devops_infrastructure_task.
+  expected_output: >
+    A data engineering architecture document containing:
+    - Event taxonomy and schema design with versioning rules
+    - Ingestion pipeline design (sources, frequency, idempotency approach)
+    - Storage layer architecture (zones, modelling approach, partitioning)
+    - Transformation DAG overview (key dbt models and Airflow DAGs described)
+    - Data quality framework with test coverage targets and SLA definitions
+    - Lineage and cataloguing tooling decisions
+    - Data governance model (access tiers, PII handling, retention schedule)
+    - List of data engineering risks and mitigations
+    Formatted as markdown without '```'
+  agent: data_engineer
+  context:
+    - technical_planning_task
+    - backend_development_task
+    - security_review_task
+
+# ── 8. ENGINEERING LEAD — FINAL REVIEW ──────────────────────
+final_report_task:
+  description: >
+    You have received the outputs of all six specialist agents for {topic}.
+    Your job is to synthesise everything into a single, cohesive, executive-ready
+    engineering report that could be handed to a CTO or VP of Engineering.
+    Do the following:
+    - Validate that all work-streams are internally consistent (e.g. the backend
+      API contracts match the frontend integration plan, the CI/CD pipeline
+      covers the security scan stages, the data schema aligns with the backend
+      events)
+    - Identify and call out any gaps, conflicts, or unresolved decisions
+      discovered during synthesis
+    - Produce a consolidated risk register pulling the top risks from each
+      specialist document, with owners and mitigation status
+    - Write an executive summary (one page) suitable for a non-technical
+      stakeholder audience
+    - Provide a recommended phased delivery roadmap (Phase 1 MVP,
+      Phase 2 hardening, Phase 3 scale) with milestone definitions
+    The report must reflect the state of {topic} as understood in {current_year}.
+  expected_output: >
+    A complete, consolidated engineering report containing:
+    - Executive summary (non-technical, one-page equivalent)
+    - System overview: architecture narrative tying all layers together
+    - Backend architecture summary
+    - Frontend architecture summary
+    - QA strategy summary
+    - DevOps & infrastructure summary
+    - Security posture summary
+    - Data engineering summary
+    - Cross-cutting concerns: consistency issues or gaps found during synthesis
+    - Consolidated risk register (owner, severity, mitigation, status)
+    - Phased delivery roadmap (Phase 1 / 2 / 3 with milestone definitions)
+    - Glossary of key terms and decisions made
+    Formatted as markdown without '```'
+  agent: engineering_lead
+  context:
+    - technical_planning_task
+    - backend_development_task
+    - frontend_development_task
+    - quality_assurance_task
+    - devops_infrastructure_task
+    - security_review_task
+    - data_engineering_task
